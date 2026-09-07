@@ -27,8 +27,9 @@ On Delete and On Update Actions:
 - Cascade: when a record in the parent table is deleted or updated, the corresponding records in the child table are also deleted or updated.
 - Set Null: when a record in the parent table is deleted or updated, the corresponding foreign key values in the child table are set to NULL.
 - Restrict: when a record in the parent table is deleted or updated, the action is restricted if there are corresponding records in the child table, preventing the deletion or update.
+-- A parent record cannot be deleted or its referenced key updated if corresponding child records exist. The operation is rejected immediately.
 - No Action: when a record in the parent table is deleted or updated, no action is taken on the corresponding records in the child table, and the foreign key constraint is enforced.
-
+-- Similar to RESTRICT in many databases: the operation is rejected if it would violate the foreign-key constraint. The key distinction is that NO ACTION may allow the constraint violation to be checked at the end of the statement or transaction if the constraint is deferrable, whereas RESTRICT prevents it immediately.
 
 Tools for Creating ER Diagrams:
 - dbdiagram.io

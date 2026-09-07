@@ -1,0 +1,122 @@
+Database Design and Normalization
+- Database Design: The process of creating a detailed data model of a database, including the structure of tables, relationships between tables, and constraints on the data.
+- Normalization: The process of organizing data in a database to reduce redundancy and improve data integrity
+- Normal Forms: A set of guidelines for structuring a relational database to minimize redundancy and dependency
+
+-- Before Normalization: (student table)
++-------------+-------------------+--------------+----------------+---------------+
+| Student_ID  |   Student_Name	  |  Course_ID   |  Course_Name   |   Teacher     |
++-------------+-------------------+--------------+----------------+---------------+
+|     1	      |      Rahul	  |     C01	 |      MySQL	  |   Sharma      |      
+|     1	      |      Rahul	  |     C02	 |      Java	  |   Verma       |      
+|     2	      |      Aman	  |     C01	 |      MySQL	  |   Sharma      |      
+|     3	      |      Priya	  |     C02	 |      Java	  |   Verma       |      
++-------------+-------------------+--------------+----------------+---------------+
+
+
+
+1. First Normal Form (1NF):
+- each column contains atomic values, and each row is unique
+- no repeating groups or arrays
+- each row must be unique, identified by a primary key
+-- Before 1NF: (student table)
++-------------+----------+-----------------+
+| Student_ID  |   Name	 |     Courses     |    
++-------------+----------+-----------------+
+|     1	      |   Rahul	 |   MySQL, Java   |             
+|     2	      |   Aman	 |   Python, C++   |    
++-------------+----------+-----------------+
+-- After 1NF: (student table)
++--------------+--------+----------+
+|  Student_ID  |  Name	|  Course  |
++--------------+--------+----------+
+|      1       |  Rahul	|  MySQL   |     
+|      1       |  Rahul	|  Java    |     
+|      2       |  Aman	|  Python  |             
+|      2       |  Aman	|  C++     |
++--------------+--------+----------+
+--- 1NF means every field should contain only one value (atomic value).
+
+2. Second Normal Form (2NF):
+- meets all the requirements of 1NF
+- there must be no partial dependency, meaning that all non-key attributes must depend on the entire primary key
+-- Before 2NF: (student table)
++--------------+-------------+----------------+---------------+
+|  Student_ID  |  Course_ID  |  Student_Name  |  Course_Name  |
++--------------+-------------+----------------+---------------+
+|      1       |     C01     |     Rahul      |	    MySQL     |          
+|      1       |     C02     |     Rahul      |     Java      |          
+|      2       |     C01     |     Aman	      |     MySQL     |
++--------------+-------------+----------------+---------------+
+-- After 2NF: (student table)
++--------------+----------------+
+|  Student_ID  |  Student_Name  |
++--------------+----------------+
+|      1       |     Rahul      |
+|      2       |     Aman       |
++--------------+----------------+
+-- (course table)
++-------------+----------------+
+|  Course_ID  |   Course_Name  |
++-------------+----------------+
+|     C01     |      MySQL     |
+|     C02     |      Java      |
++-------------+----------------+
+-- (enrollment table)
++-------------+-------------+
+|  Student_ID |  Course_ID  |
++-------------+-------------+
+|     1       |     C01     |
+|     1       |     C02     |
+|     2       |     C01     |
++-------------+-------------+
+
+3. Third Normal Form (3NF):
+- meets all the requirements of 2NF
+- there must be no transitive dependency, meaning that non-key attributes must not depend on other non-key attributes
+-- Before 3NF: (student table)
++-------------+-------------------+--------------+---------------+
+| Student_ID  |   Student_Name	  |  Dept_ID     |  Dept_Name    |
++-------------+-------------------+--------------+---------------+
+|     1	      |      Rahul	  |     D01	 |   Computer    |
+|     2	      |      Aman	  |     D02	 |   Mechanical  |
+|     3	      |      Priya	  |     D01	 |   Computer    |
++-------------+-------------------+--------------+---------------+
+-- After 3NF: (student table) {pk: Student_ID}
++-------------+-------------------+--------------+
+| Student_ID  |   Student_Name	  |  Dept_ID     |
++-------------+-------------------+--------------+
+|    1	      |      Rahul	  |     D01	 |
+|    2	      |      Aman	  |     D02	 |
+|    3	      |      Priya	  |     D01	 |
++-------------+-------------------+--------------+
+-- (department table) {pk: Dept_ID}
++-------------+----------------+
+|  Dept_ID    |   Dept_Name    |
++-------------+----------------+
+|     D01     |   Computer     |
+|     D02     |   Mechanical   |
++-------------+----------------+
+
+4. Boyce-Codd Normal Form (BCNF):
+- meets all the requirements of 3NF
+- for every functional dependency (X → Y), X should be a super key
+- every determinant must be a candidate key
+
+
+Normal Form	    Main Requirement
+1NF	            Atomic/single values; no repeating groups
+2NF	            1NF + no partial dependency
+3NF	            2NF + no transitive dependency
+BCNF	            3NF + every determinant must be a candidate key
+4NF	            No unwanted multivalued dependencies
+5NF	            Removes certain join dependencies
+
+## Way to Remember:
+1NF → Atomic values
+        ↓
+2NF → Remove partial dependency
+        ↓
+3NF → Remove transitive dependency
+        ↓
+BCNF → Stronger version of 3NF

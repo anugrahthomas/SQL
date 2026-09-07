@@ -51,3 +51,16 @@ cli commands:
 cmd: mysql -u root -p
 cmd: psql -U postgres
 cmd: psql -h <localhost> -p 5432 -U <username> -d <database_name>
+
+import and export commands:
+- MySQL:
+  - Import: mysql -u username -p database_name < file.sql
+  - Export: mysqldump -u username -p database_name > file.sql
+  - Export structure only: mysqldump -u username -p --no-data database_name > structure.sql
+  - Export table: mysqldump -u username -p database_name table_name > table.sql
+
+- PostgreSQL:
+  - Import: psql -U username -d database_name -f file.sql
+  - Export: pg_dump -U username -d database_name > file.sql
+  - Export structure only: pg_dump -U username -d database_name --section=pre-data > structure.sql
+  - Export table: pg_dump -U username -d database_name table_name > table.sql

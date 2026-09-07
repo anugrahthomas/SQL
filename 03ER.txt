@@ -1,0 +1,38 @@
+ER (Entity-Relationship) diagram:
+- visual representation of entities, their attributes, and the relationships between them in a database
+
+Entity: represents the real-world objects or concepts in the database, such as Student, Employee, or Product.
+
+Types of Entities:
+- Strong Entity: an entity that can exist independently and has a primary key to uniquely identify its
+- Weak Entity: an entity that cannot exist independently and relies on a strong entity for its identification, often having a foreign key that references the primary key of the strong entity.
+
+Attribute: represents the properties or characteristics of an entity, such as name, age, or address.
+
+Types of Attributes:
+- Simple Attribute: an attribute that cannot be further divided, such as a person's first name or last name.
+- Composite Attribute: an attribute that can be divided into smaller sub-attributes, such as a full name that can be divided into first name and last name.
+- Derived Attribute: an attribute that can be derived or calculated from other attributes, such as age derived from date of birth.
+- Multivalued Attribute: an attribute that can have multiple values for a single entity, such as a person having multiple phone numbers.
+
+Relationship: represents the association between two or more entities, such as a Student enrolling in a Course.
+
+Types of Relationships:
+- One-to-One (1:1): a relationship where one entity is associated with only one other entity, such as a person having one passport.
+- One-to-Many (1:N): a relationship where one entity is associated with multiple entities, such as a teacher teaching multiple courses.
+- Many-to-One (N:1): a relationship where multiple entities are associated with one entity, such as multiple students belonging to one class.
+- Many-to-Many (M:N): a relationship where multiple entities are associated with multiple other entities, such as students enrolling in multiple courses and courses having multiple students.
+
+On Delete and On Update Actions:
+- Cascade: when a record in the parent table is deleted or updated, the corresponding records in the child table are also deleted or updated.
+- Set Null: when a record in the parent table is deleted or updated, the corresponding foreign key values in the child table are set to NULL.
+- Restrict: when a record in the parent table is deleted or updated, the action is restricted if there are corresponding records in the child table, preventing the deletion or update.
+- No Action: when a record in the parent table is deleted or updated, no action is taken on the corresponding records in the child table, and the foreign key constraint is enforced.
+
+
+Tools for Creating ER Diagrams:
+- dbdiagram.io
+- draw.io
+
+- dBeaver
+- pgModeler

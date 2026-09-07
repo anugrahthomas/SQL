@@ -1,0 +1,53 @@
+Definitions:
+- Data: raw facts and figures, not processed yet
+- Information: processed data that is meaningful and useful
+- database: organized collection of realted data that can be easily accessed, managed, and updated
+- DBMS(database management system): software that allows users to define, create, maintain, and control access to the database
+- RDBMS(relational database management system): a type of DBMS that stores data in the form of related tables
+- table: a collection of related data organized in rows and columns
+- row/tuple/record: a single entry in a table that contains data for each column
+- column/field/attribute: a single piece of data in a table that represents a specific characteristic or property of the data 
+- Schema: structure that defines the organization of database or blueprint of database
+- Query: A request to retrieve or manipulate data in a database.
+- Relationship: An association between data in two or more tables.
+- Entity: A real-world object or concept about which data is stored, such as Student, Employee, or Product.
+- Transaction: A sequence of database operations treated as one logical unit of work.
+- Backup: A copy of database data kept so it can be restored if data is lost or damaged.
+- Redundancy: Unnecessary duplication of data.
+- Constraint: A rule applied to database data to maintain accuracy and consistency.
+- Data Integrity: The accuracy, consistency, and reliability of data in a database.
+
+- Primary Key: A field that uniquely identifies each record in a table.
+- Foreign Key: A field that connects one table to the primary key of another table.
+- Candidate Key: A field or combination of fields that can uniquely identify a record and could be chosen as the primary key.
+- Composite Key: A key made up of two or more fields used together to uniquely identify a record.
+
+NOTE: composite key is a `primary key` consists of two or more columns
+NOTE: foreign key may or may not be a primary key in referenced table, but it must be a primary key or unique key in the referenced table.
+
+Types of Data:
+- Structured Data: data that is organized in a predefined format, such as tables and rows
+- Unstructured Data: data that does not have a predefined format, such as text documents, images, and videos
+- Semi-structured Data: data that has some organizational properties but does not conform to a strict schema, such as JSON and XML
+
+Types of Databases:
+- Relational Databases: databases that store data in the form of related tables, using SQL
+- NoSQL Databases: databases that store data in a non-relational format, often used for large-scale and unstructured data
+- Hierarchical Databases: databases that organize data in a tree-like structure, with parent-child relationships
+- Network Databases: databases that organize data in a graph-like structure, allowing for complex relationships between data points
+- Object-oriented Databases: databases that store data in the form of objects, which can contain both data and methods for manipulating that data
+
+Popular RDBMSs:
+- MySQL: an open-source RDBMS that is widely used for web applications
+- PostgreSQL: an open-source RDBMS known for its advanced features and compliance with SQL
+- Oracle Database: a enterprise-level RDBMS known for its scalability and enterprise-level features
+- Microsoft SQL Server: a RDBMS developed by Microsoft, commonly used in enterprise environments
+- SQLite: a lightweight, file-based RDBMS that is often used in mobile applications and embedded systems
+- MariaDB: an open-source RDBMS that is a fork of MySQL, known for its performance and security features
+
+SQL(Structured Query Language): a standard programming language used to manage and manipulate relational databases
+
+cli commands:
+cmd: mysql -u root -p
+cmd: psql -U postgres
+cmd: psql -h <localhost> -p 5432 -U <username> -d <database_name>

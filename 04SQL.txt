@@ -1,0 +1,163 @@
+SQL Commands:
+
+1. DDL (Data Definition Language):
+- CREATE: used to create a new database, table, or other database objects.
+- ALTER: used to modify an existing database object, such as adding or dropping columns in a table.
+- DROP: used to delete an existing database object, such as a table or database.
+- TRUNCATE: used to remove all records from a table, but not the table itself
+- COMMENT: used to add comments to database objects, such as tables or columns, for documentation purposes.
+- RENAME: used to change the name of an existing database object, such as a table or column.
+
+2. DML (Data Manipulation Language):
+- INSERT: used to add new records to a table.
+- UPDATE: used to modify existing records in a table.
+- DELETE: used to remove existing records from a table.
+
+3. DQL (Data Query Language):
+- SELECT: used to retrieve data from one or more tables in a database.
+- FROM: used to specify the table(s) from which to retrieve data in a SELECT statement.
+- WHERE: used to filter records based on specified conditions in a SELECT statement.
+- GROUP BY: used to group records based on specified columns in a SELECT statement.
+- HAVING: used to filter groups based on specified conditions in a SELECT statement.
+- ORDER BY: used to sort records based on specified columns in a SELECT statement.
+- DISTINCT: used to retrieve unique records from a table in a SELECT statement.
+- LIMIT: used to limit the number of records returned in a SELECT statement.
+
+4. DCL (Data Control Language):
+- GRANT: used to give users access privileges to database objects.
+- REVOKE: used to remove access privileges from users for database objects.
+
+5. TCL (Transaction Control Language):
+- BEGIN TRANSACTION: used to start a new transaction.
+- COMMIT: used to save all changes made in the current transaction to the database.
+- ROLLBACK: used to undo all changes made in the current transaction and revert the database to its previous state.
+- SAVEPOINT: used to set a point within a transaction to which you can later roll back.
+
+SQL data types:
+1. Numeric data types:
+Type	                    Size	        Approximate range           Description
+SMALLINT	                2 bytes	        -32K to 32K                 small integer values
+INT/INTEGER	                4 bytes	        -2.1B to 2.1B               integer values
+BIGINT	                    8 bytes	        -9.2E18 to 9.2E18           large integer values
+DECIMAL(p, s)/NUMERIC       variable	     depends on precision       fixed-point decimal
+FLOAT/REAL                  4 bytes	        1.17549E-38 to 3.40282E38   single-precision
+DOUBLE PRECISION            8 bytes	        2.22507E-308 to 1.79769E308 double-precision
+
+2. Character/String data types:
+Type	                    Size	        Description
+CHAR(n)	                    n bytes	        fixed-length character string
+VARCHAR(n)	                variable	    variable-length character string
+TEXT                        variable	    variable-length character string, no limit
+
+3. Date/Time data types:
+Type	                    Size	        Description
+DATE	                    4 bytes	        date values (year, month, day)
+TIME	                    8 bytes	        time values (hour, minute, second)
+DATETIME/TIMESTAMP	        8 bytes	        full date(year, month, day, hour, minute, second)
+INTERVAL	                variable	    time interval values (e.g., '1 day', '2 hours')
+
+4. Boolean data type:
+Type	                    Size	        Description
+BOOLEAN/BOOL	            1 byte	        true or false values
+
+5. Binary data types:
+Type	                    Size	        Description
+BINARY(n)	                n bytes	        fixed-length binary data
+VARBINARY(n)	            variable	    variable-length binary data, maximum length n
+BLOB                        variable	    large binary data (e.g., images, audio, video)
+- BLOB (binary large object) - stores large binary data
+
+6. Special data types:
+Type	                    Size	        Description
+ENUM	                    variable	    string object with a predefined set of values
+SET                         variable	    multiple predefined set in one string object
+JSON/JSONB	                variable	    JSON data, JSONB is a binary 
+UUID                        16 bytes	    universally unique identifier
+
+--- Constraints:
+Constraint	    Description
+PRIMARY KEY	    Uniquely identifies each record in a table (UNIQUE + NOT NULL)
+FOREIGN KEY	    Ensures referential integrity between two tables
+UNIQUE	        Ensures that all values in a column are unique
+NOT NULL	    Ensures that a column cannot have a NULL value
+CHECK	        Ensures that all values in a column satisfy a specific condition
+DEFAULT	        Provides a default value for a column when no value is specified
+
+AUTO_INCREMENT/IDENTITY	Automatically generates a unique value for a column when a new record is inserted (depending on the database system, this may be implemented differently, e.g., AUTO_INCREMENT in MySQL, IDENTITY in SQL Server, or SERIAL in PostgreSQL).
+eg: CREATE TABLE employees (
+    id              INT             PRIMARY KEY,
+    name            VARCHAR(50)     NOT NULL,
+    age             INT             CHECK (age >= 18),
+    department_id   INT             DEFAULT 1,
+    FOREIGN KEY (department_id) REFERENCES departments(id)
+);
+
+
+--- WHERE clause operators:
+Operator	    Meaning
+=	            Equal
+<> / !=	        Not equal
+>	            Greater than
+<	            Less than
+>=	            Greater than/equal
+<=	            Less than/equal
+AND	            Both conditions
+OR	            Either condition
+NOT	            Reverse condition
+BETWEEN	        Within a range
+IN	            Match values from a list
+NOT IN	        Exclude values
+LIKE	        Pattern matching
+%	            Zero or more characters
+_	            Exactly one character
+
+--- HAVING vs WHERE:
+-- HAVING : it filters grouped records
+- WHERE : it filters individual records before grouping
+FROM
+  ↓
+WHERE
+  ↓
+GROUP BY
+  ↓
+HAVING
+  ↓
+SELECT
+  ↓
+ORDER BY
++---------+------------------+------------------+
+|Clause	  | Filters	         |  Think           |
++---------+------------------+------------------+
+|WHERE	  | Individual rows	 |  Before grouping |
+|GROUP BY |	Creates groups	 |  Make buckets    |
+|HAVING	  | Groups	         |  After grouping  |
++---------+------------------+------------------+
+
+
+Type Casting in SQL:
+- converting a value from one data type to another.
+- can be done using the CAST() or CONVERT() functions, depending on the database system
+SELECT CAST('123' AS INTEGER);
+
+
+A overview between different SQL:
+
+Feature	           Standard SQL	    PostgreSQL	    MySQL	    MariaDB	    SQLite
+SELECT	                ✅	            ✅	        ✅	        ✅	        ✅
+INSERT	                ✅	            ✅	        ✅	        ✅	        ✅
+UPDATE	                ✅	            ✅	        ✅	        ✅	        ✅
+DELETE	                ✅	            ✅	        ✅	        ✅	        ✅
+JOIN	                ✅	            ✅	        ✅	        ✅	        ✅
+GROUP BY	            ✅	            ✅	        ✅	        ✅	        ✅
+PRIMARY KEY	            ✅	            ✅	        ✅	        ✅	        ✅
+FOREIGN KEY	            ✅	            ✅	        ✅	        ✅	        ✅
+CHECK	                ✅	            ✅	        ✅	        ✅	        ✅
+RETURNING	            ⛔️	             ✅	         ✅           ✅	         ✅
+JSONB	                ⛔️	             ✅	         ❌	         ❌	         ❌
+Array type	            ⛔️	             ✅	         ❌	         ❌	         ❌
+ILIKE	                ⛔️	             ✅	         ❌	         ❌	         ❌
+DISTINCT ON	            ⛔️	             ✅	         ❌	         ❌	         ❌
+ON CONFLICT	            ⛔️	             ✅	         ❌	         ❌	         ❌
+AUTO_INCREMENT	        ⛔️	             ❌	         ✅	         ✅	         ❌
+SERIAL	                ⛔️	             ✅	         ❌	         ❌	         ❌
+ENUM type	            ⛔️	             ✅	         ✅	         ✅	         ❌

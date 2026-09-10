@@ -1,0 +1,99 @@
+Joins in SQL:
+- joins are used to combine rows from two or more tables based on a related column between them.
+
+Types of Joins:
+1. INNER JOIN: returns records that have matching values in both tables.
+- This is the default type of join.
+- return rows where table1.common_column = table2.common_column match exactly.
+- all unmatched rows are excluded from the result set.
+Syntax:
+SELECT columns
+FROM table1 t1
+INNER JOIN table2 t2
+ON t1.common_column = t2.common_column;
+
+2. LEFT JOIN (or LEFT OUTER JOIN): returns all records from the left table and the matched records from the right table. If there is no match, NULL values are returned for columns from the right table.
+- returns all rows from left table and matched rows from right table.
+- if there is no match, NULL values are returned for columns from the right table.
+Syntax:
+SELECT columns
+FROM table1 t1
+LEFT JOIN table2 t2
+ON t1.common_column = t2.common_column;
+
+3. RIGHT JOIN (or RIGHT OUTER JOIN): returns all records from the right table and the matched records from the left table. If there is no match, NULL values are returned for columns from the left table.
+- returns all rows from right table and matched rows from left table.
+- if there is no match, NULL values are returned for columns from the left table.
+Syntax:
+SELECT columns
+FROM table1 t1
+RIGHT JOIN table2 t2
+ON t1.common_column = t2.common_column;
+
+4. FULL JOIN (or FULL OUTER JOIN): returns all records when there is a match in either left or right table. If there is no match, NULL values are returned for columns from the table without a match.
+- returns all rows from both tables, with NULL values in columns where there is no match.
+Syntax:
+SELECT columns
+FROM table1 t1
+FULL OUTER JOIN table2 t2
+ON t1.common_column = t2.common_column; 
+NOTE: MariaDB/MySQL does not support FULL OUTER JOIN directly. You can achieve similar results using a combination of LEFT JOIN and RIGHT JOIN with UNION.
+
+5. CROSS JOIN: returns the Cartesian product of the two tables, i.e., it returns all possible combinations of rows from both tables.
+- returns all possible combinations of rows from both tables.
+Syntax:
+SELECT columns
+FROM table1 t1
+CROSS JOIN table2 t2;
+
+6. SELF JOIN: a self join is a regular join but the table is joined with itself.
+- used to join a table with itself.
+Syntax:
+SELECT a.columns, b.columns
+FROM table a
+JOIN table b ON a.common_column = b.common_column
+
+7. NATURAL JOIN: a natural join is based on all columns in the two tables that have the same name and selects rows with equal values in the relevant columns.
+- automatically joins tables based on columns with the same name and compatible data types.
+⚠️ Note: NATURAL JOIN can lead to unexpected results if there are multiple columns with the same name in both tables. It is generally recommended to use explicit join conditions (ON clause) for clarity and control over the join behavior.
+Syntax:
+SELECT columns
+FROM table1
+NATURAL JOIN table2;
+
+Visual representation of joins:
+-- INNER JOIN
+
+A       B
+○───●───○
+   matches
+
+-- LEFT JOIN
+
+A       B
+●───●───○
+●
+●
+All A + matching B
+
+-- RIGHT JOIN
+
+A       B
+○───●───●
+        ●
+        ●
+All B + matching A
+
+-- FULL OUTER JOIN
+
+A       B
+●───●───●
+●       ●
+●       ●
+Everything from both
+
+-- CROSS JOIN
+
+A × B
+
+3 × 3 = 9 combinations

@@ -1,0 +1,170 @@
+Subqueries: 
+- A subquery is a query nested inside another query.
+- It is used to retrieve data that will be used in the main query as a condition to further restrict the data to be retrieved.
+- Subqueries can be used in SELECT, INSERT, UPDATE, or DELETE statements, and can be nested within other subqueries.
+- Subqueries can return individual values or a set of values, and can be used in various clauses such as WHERE, FROM, and SELECT.
+- Subqueries can be correlated or uncorrelated. A correlated subquery depends on the outer query for its values, while an uncorrelated subquery can be executed independently of the outer query.
+
+SUBQUERY TYPES:
+1. Scalar Subquery: returns a single value (one row and one column). It can be used in places where a single value is expected, such as in a WHERE clause or a SELECT list.
+2. IN Subquery: returns a set of values (multiple rows and one column).
+3. EXISTS Subquery: returns TRUE if the subquery returns any rows, and FALSE if it does not. It is often used in WHERE clauses to check for the existence of rows that meet certain criteria.
+4. NOT EXISTS Subquery: returns TRUE if the subquery does not return any rows, and FALSE if it does. It is often used in WHERE clauses to check for the non-existence of rows that meet certain criteria.
+5. Correlated Subquery: a subquery that references columns from the outer query. It is executed once for each row processed by the outer query, and its result can depend on the values of the outer query. Correlated subqueries are often used in WHERE clauses to filter results based on values from the outer query.
+
+🧠 Mental Model of Subqueries:
+-- first inner query is executed and its result is used by the outer query
+
+-- ANY vs ALL:
+- ANY: The ANY operator compares a value to each value in a list or returned by a subquery. It returns TRUE if the comparison is TRUE for any of the values.
+- ALL: The ALL operator compares a value to all values in a list or returned by a subquery. It returns TRUE if the comparison is TRUE for all of the values.
+
+
+students
++----+-------+------+
+| id | name  | age  |
++----+-------+------+
+|  1 | John  |   20 |
+|  2 | Alice |   22 |
+|  3 | Bob   |   19 |
+|  4 | David |   25 |
+|  5 | Emma  |   21 |
++----+-------+------+
+
+example of ALL:
+SELECT * FROM students WHERE age >= ALL (SELECT age FROM students);
+- first inner query is executed:
+SELECT age FROM students;
+*** Returns: (20, 22, 19, 25, 21) ***
+- Then outer query is executed:
+SELECT * FROM students WHERE age >= ALL (20, 22, 19, 25, 21);
+-- mental model: age >= MAX(20, 22, 19, 25, 21) => age >= 25
++----+-------+------+
+| id | name  | age  |
++----+-------+------+
+|  4 | David |   25 |
++----+-------+------+
+
+example of ANY:
+SELECT * FROM students WHERE age > ANY (SELECT age FROM students);
+- first inner query is executed:
+SELECT age FROM students;
+*** Returns: (20, 22, 19, 25, 21) ***
+- Then outer query is executed:
+SELECT * FROM students WHERE age > ANY (20, 22, 19, 25, 21);
+-- mental model: age > MIN(20, 22, 19, 25, 21) => age > 19
++----+-------+------+
+| id | name  | age  |
++----+-------+------+
+|  1 | John  |   20 |
+|  2 | Alice |   22 |
+|  4 | David |   25 |
+|  5 | Emma  |   21 |
++----+-------+------+
+
+
+Joins vs Subqueries:
+- join combines rows from two or more tables based on relation
+- subquery uses the result of one query as input for another query like a nested query.
+
+
+students
++----+--------+---------------+
+| id | name   | department_id |
++----+--------+---------------+
+| 1  | John   | 10            |
+| 2  | Alice  | 20            |
+| 3  | Bob    | 10            |
++----+--------+---------------+
+
+departments
++----+-------------+
+| id | name        |
++----+-------------+
+| 10 | Computer    |
+| 20 | Mathematics |
++----+-------------+
+
+JOIN example:
+SELECT
+    s.name,
+    d.name AS department
+FROM students s
+JOIN departments d
+    ON s.department_id = d.id;
++--------+-------------+
+| name   | department  |
++--------+-------------+
+| John   | Computer    |
+| Alice  | Mathematics |
+| Bob    | Computer    |
++--------+-------------+
+
+🧠 Mental Model of JOINS:
+students ───── JOIN ───── departments
+
+
+Subquery example:
+SELECT name
+FROM students
+WHERE department_id = (
+    SELECT id
+    FROM departments
+    WHERE name = 'Computer'
+);
+
+-- here first inner query is executed
+SELECT id
+FROM departments
+WHERE name = 'Computer';
+
+*** Returns: 10 ***
+
+-- Then outer query is executed:
+SELECT name
+FROM students
+WHERE department_id = 10;
+
++--------+
+| name   |
++--------+
+| John   |
+| Bob    |
++--------+
+
+🧠 Mental Model of SubQuery:
+Outer query
+    ↑
+    │ uses result
+    │
+Inner query
+
+
+
+                                           JOIN	            Subquery
+Main idea	                            Combine tables	    Query inside query
+Multiple tables	                        Excellent	        Possible
+Get columns from both tables	        ✅	                Possible but less natural
+Filtering based on another query	    Possible	        Excellent
+EXISTS	                                ❌	                ✅
+IN (subquery)	                        ❌	                ✅
+Aggregation comparison	                Possible	        ✅ Very natural
+Can be correlated	                    ❌	                ✅
+Can return multiple rows	            ✅	                ✅
+Can return one value	                ✅	                ✅
+
+
+SQL
+│
+├── JOIN
+│   ├── INNER JOIN
+│   ├── LEFT JOIN
+│   ├── RIGHT JOIN
+│   └── FULL OUTER JOIN
+│
+└── SUBQUERY
+    ├── Scalar subquery
+    ├── IN
+    ├── EXISTS
+    ├── NOT EXISTS
+    └── Correlated subquery

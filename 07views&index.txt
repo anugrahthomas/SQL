@@ -1,0 +1,82 @@
+Views in SQL:
+- A view is a virtual table based on the result set of an SQL statement.
+- views are used to simplify complex queries, encapsulate logic, and provide a level of abstraction over the underlying tables.
+- views can be used to restrict access to specific data, allowing users to interact with a subset of the data without exposing the entire underlying table.
+- views stores the SQL query definition, not the actual data. When a view is queried, the underlying SQL statement is executed to retrieve the data.
+
+SYNTAX:
+CREATE VIEW view_name AS
+SELECT column1, column2, ...
+FROM table_name
+WHERE condition;
+
+why views are used:
+- Simplifying complex queries: avoid repeat writing complex SQL.
+- Security: expose only specific columns to certain users.
+- Reusability: can be reused in multiple queries.
+- Abstraction: hide the complexity of underlying tables and relationships.
+
+
+INDEXES in SQL:
+- An index is a database object that improves the speed of data retrieval operations on a table at the cost of additional storage space and maintenance overhead.
+- indexes are used to optimize query performance by allowing the database engine to quickly locate and access the data without scanning the entire table.
+- indexes can be created on one or more columns of a table, and they can be unique or non-unique.
+
+why indexes are used:
+- without an index, the database engine may need to perform a full scan on the table O(n)
+- with an index, the database engine performs efficient lookups O(log(n))
+
+- different database uses different indexing techniques and algorithms:
+-- PostgreSQL: B-tree, Hash, GiST, SP-GiST, GIN, BRIN
+-- MySQL: B-tree, Hash (for MEMORY tables), R-tree (for spatial data)
+-- MariaDB: B-tree, Hash (for MEMORY tables), R-tree (for spatial data)
+-- SQLite: B-tree (default), R-tree (for spatial data)
+-- Oracle: B-tree, Bitmap, Clustered, Reverse key, Function-based
+-- SQL Server: B-tree, Columnstore, XML, Spatial, Full-text
+
+Types of indexes:
+- Single-column index: created on a single column of a table.
+- Composite index/Multi-column index: created on multiple columns of a table.
+- Unique index: ensures that the values in the indexed column(s) are unique.
+
+
+EXPLAIN in SQL:
+- The EXPLAIN statement is used to obtain information about how the database engine executes a query
+- EXPLAIN provides insights into the query execution plan, including the order of operations, the access methods used, and the estimated cost of each operation.
+- EXPLAIN can help identify performance bottlenecks and optimize queries by revealing how the database engine processes the query.
+
+OPTIMIZATION in SQL:
+- fetch specific columns and rows instead of select *
+- use proper indexing
+- avoid unnecessary joins and subqueries
+- use LIMIT to restrict the number of rows returned
+- Normalize the database schema to reduce redundancy and improve data integrity
+
+OPTIMIZE in SQL:
+- The OPTIMIZE statement is used to improve the performance of a database by reorganizing and defragmenting the data storage structures.
+- OPTIMIZE can help reclaim unused space, reduce fragmentation, and improve query performance by ensuring that data is stored in a more efficient manner.
+- The specific syntax and behavior of the OPTIMIZE statement may vary depending on the database management system (DBMS) being used. For example, in MySQL, the OPTIMIZE TABLE statement is used to optimize a specific table, while in PostgreSQL, the VACUUM and ANALYZE commands are used to optimize the database and gather statistics for query planning.
+Table + Indexes
+      ↓
+  fragmentation
+      ↓
+OPTIMIZE TABLE
+      ↓
+reorganize/rebuild storage
+      ↓
+better storage / potentially better performance
+
+
+
+
+----------------------------------------------------------------------------------------
+
+             PostgreSQL maintenance
+                     │
+          ┌──────────┼──────────┐
+          ↓          ↓          ↓
+       VACUUM     REINDEX    ANALYZE
+          │          │          │
+          ↓          ↓          ↓
+      Dead rows    Indexes    Statistics
+      / tuples     rebuild    update

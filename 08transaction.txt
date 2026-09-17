@@ -1,0 +1,489 @@
+Transaction:
+- sequence of database operations treated as one logical unit of work
+
+ACID Properties of Transaction:
+- Atomicity: all or nothing, either all operations in a transaction are completed successfully or none of them are applied
+- Consistency: after a transaction, the database must be in a consistent state, meaning that all data must adhere to the defined rules and constraints
+- Isolation: transactions must be executed in isolation from one another, meaning that the intermediate state of a transaction should not be visible to other transactions until it is completed
+- Durability: once a transaction is committed, its changes are permanent and will survive any subsequent system failures
+
+Problems that can occur in transactions:
+- Lost Update: when two transactions read the same data and then update it, the second update can overwrite the first update, resulting in lost data
+- Dirty Read: when a transaction reads data that has been modified by another transaction but not yet committed, leading to inconsistent or incorrect results
+- Non-repeatable Read: when a transaction reads the same data multiple times and gets different results due to another transaction modifying the data in between reads
+- Phantom Read: when a transaction reads a set of rows that satisfy a certain condition, but another transaction inserts or deletes rows that would have satisfied the condition
+
+ISOLATION LEVELS:
+- Read Uncommitted: allows transactions to read uncommitted changes made by other transactions, which can lead to dirty reads
+- Read Committed: allows transactions to read only committed changes made by other transactions, preventing dirty reads but allowing non-repeatable reads and phantom reads
+- Repeatable Read: ensures that if a transaction reads the same data multiple times, it will get the same result
+- Serializable: the highest isolation level, ensuring that transactions are executed in a way that produces the same results as if they were executed serially, one after the other, preventing all concurrency issues
+
+eg:
+START TRANSACTION;
+
+UPDATE accounts
+SET balance = balance - 200
+WHERE id = 1;
+
+UPDATE accounts
+SET balance = balance + 200
+WHERE id = 2;
+
+COMMIT;
+
+-- postgres
+BEGIN;
+
+UPDATE students
+SET age = age + 1
+WHERE id = 1;
+
+COMMIT;
+
+-- savepoints: savepoint allows to rollback to a specific point within a transaction without rolling back the entire transaction
+BEGIN;
+
+UPDATE students
+SET age = 21
+WHERE id = 1;
+
+SAVEPOINT sp1;
+
+UPDATE students
+SET age = 30
+WHERE id = 2;
+
+ROLLBACK TO sp1;
+
+COMMIT;
+
+
+
+🧠 Mental Model:
+             START
+               │
+               ▼
+       ┌───────────────┐
+       │   TRANSACTION │
+       │               │
+       │ SQL 1         │
+       │ SQL 2         │
+       │ SQL 3         │
+       └───────┬───────┘
+               │
+          ┌────┴────┐
+          ↓         ↓
+       COMMIT    ROLLBACK
+          ↓         ↓
+       SAVED      UNDONE
+
+-- MVCC(Multi-Version Concurrency Control): a concurrency control method that allows multiple transactions to access the same data simultaneously by creating multiple versions of the data, ensuring that each transaction sees a consistent snapshot of the database at a specific point in time
+
+
+Problems that can occur in transactions:
+1. DIRTY READ:
+- reading data uncommitted data from another transaction, which can lead to inconsistent or incorrect results
+- T1 reads data that T2 changed but has NOT committed yet.
+
+example:
+- initially 
+    - T1 reads balance = 1000
+    - T2 reads balance = 1000
+
+T1                         T2
+│                          │
+│                          UPDATE balance = 500
+│                          │
+│  READ balance = 500      │
+│                          │
+│                          ROLLBACK
+│                          │
+
+- here T1 reads balance = 500, but T2 rolled back its changes, so the final balance should be 1000, but T1 has lost the update made by T2.
+- this is dirty read problem, because T1 read uncommitted data from T2.
+
+🧠 Mental Model:
+T2: change data
+       ↓
+   NOT COMMITTED
+       ↓
+T1 reads it ❌
+       ↓
+T2 ROLLBACK
+       ↓
+Data never actually existed
+
+SOLUTION:
+- use READ COMMITTED isolation level, which prevents dirty reads but allows non-repeatable reads and phantom reads.
+
+2. NON-REPEATABLE READ:
+- reading the same row but getting different results because another transaction modified it
+- T1 reads the same row twice but getting different values because T2 modified the row in between the two reads.
+
+example:
+- initially
+    - T1 reads balance = 1000
+
+T1                         T2
+│                          │
+│ READ → ₹1000             │
+│                          │
+│                          UPDATE → ₹500
+│                          COMMIT
+│                          │
+│ READ → ₹500              │
+│                          │
+
+🧠 Mental Model:
+T1 reads → 1000
+              ↓
+        T2 changes it
+              ↓
+        T2 COMMIT
+              ↓
+T1 reads → 500
+
+SOLUTION:
+- use REPEATABLE READ isolation level, which ensures that if a transaction reads the same data multiple times, it will get the same result, preventing non-repeatable reads but allowing phantom reads.
+
+3. PHANTOM READ:
+- Instead of an existing row changing, new rows appear or disappear from the result set.
+- T1 reads a set of rows, but T2 inserts/deletes rows that would have satisfied the condition, causing T1 to see different results in subsequent reads.
+
+example:
+- initially
+students
++-----+-------+
+| id  |  age  |
++-----+-------+
+| 1   |  20   |  
+| 2   |  22   |
+| 3   |  25   |
++-----+-------+
+T1:
+SELECT *
+FROM students
+WHERE age > 21;
+
++-----+-------+
+| id  |  age  |
++-----+-------+
+| 2   |  22   |
+| 3   |  25   |
++-----+-------+
+
+T2:
+INSERT INTO students
+VALUES (4, 23);
+COMMIT;
+
+T1: (runs the same query again)
+SELECT *
+FROM students
+WHERE age > 21;
+
++-----+-------+
+| id  |  age  |
++-----+-------+
+| 2   |  22   |
+| 3   |  25   |
+| 4   |  23   |
++-----+-------+
+--- here id=4 is a phantom row that appeared in the result set of T1 because T2 inserted it after T1's first read.
+
+
+
+🧠 Mental Model:
+T1: WHERE age > 21
+       ↓
+    [2, 3]
+       ↓
+T2 inserts 4
+       ↓
+T2 COMMIT
+       ↓
+T1: WHERE age > 21
+       ↓
+   [2, 3, 4]
+          ↑
+       PHANTOM
+
+SOLUTION:
+- use SERIALIZABLE isolation level, which ensures that transactions are executed in a way that produces the same results as if they were executed serially, one after the other, preventing all concurrency issues.
+
+4. LOST UPDATE:
+- Two transactions read the same value and then update it. One update can overwrite the other's result.
+- This can lead to data loss if not handled properly.
+
+example:
+- initially
+    - T1 reads balance = 1000
+    - T2 reads balance = 1000
+
+T1                         T2
+│                          │
+│ READ → 1000              │
+│                          │ READ → 1000
+│                          │
+│ calculate → 1100         │ calculate → 1200
+│                          │
+│ UPDATE → 1100            │
+│                          │
+│                          │ UPDATE → 1200
+│                          │
+- here T2's update overwrites T1's update, resulting in lost data.
+
+🧠 Mental Model:
+          Balance = 1000
+              │
+       ┌──────┴──────┐
+       ↓             ↓
+      T1             T2
+   reads 1000     reads 1000
+       ↓             ↓
+   writes 1100    writes 1200
+       ↓             ↓
+       └──────┬──────┘
+              ↓
+          Final = 1200
+              
+       T1's update ❌ LOST
+
+SOLUTION:
+- use proper locking mechanisms or optimistic concurrency control to prevent lost updates.
+
++-------------------------+-----------------------------------------------+
+| Problem                 | What changes?                                 |
++-------------------------+-----------------------------------------------+
+|   Dirty Read            | Reading 'uncommitted' data                    |
+|   Non-Repeatable Read   | Same row gives different values               |
+|   Phantom Read          | Same query returns different rows             |
+|   Lost Update           | One transaction's update gets overwritten     |
++-------------------------+-----------------------------------------------+
+
+
++--------------------------------------------------------------------+
+|                    TRANSACTION PROBLEMS                            |           
+|                           │                                        |   
+|       ┌───────────────────┼───────────────────┐                    |       
+|       ↓                   ↓                   ↓                    |       
+|   DATA VALUE          RESULT SET           UPDATE                  |           
+|       │                   │                   │                    |       
+|       ├── Dirty Read      │                   └── Lost Update      |           
+|       │                   │                                        |           
+|       └── Non-repeatable  └── Phantom Read                         |       
++--------------------------------------------------------------------+
+
+
+More isolation
+      ↑
+      │
+SERIALIZABLE        strongest
+REPEATABLE READ
+READ COMMITTED
+READ UNCOMMITTED    weakest
+      │
+      ↓
+More concurrency / fewer restrictions
+
+
++----------------------+---------------+---------------------+---------------+
+| Isolation Level      |  Dirty Read   | Non-repeatable Read | Phantom Read  |
++----------------------+---------------+---------------------+---------------+
+|   Read Uncommitted   |  ❌ Possible  |          ❌ Possible |   ❌ Possible |
+|   Read Committed     |  ✅ Prevented |          ❌ Possible |   ❌ Possible |
+|   Repeatable Read    |  ✅ Prevented |         ✅ Prevented |  ❌ Possible  |
+|   Serializable       |  ✅ Prevented |         ✅ Prevented |  ✅ Prevented |
++----------------------+---------------+---------------------+---------------+
+
+-- for postgres:
+BEGIN;
+
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+-- queries and updates
+
+COMMIT;
+
+
+LOCKING:
+- mechanism to control concurrent access to data in a database, ensuring that transactions are executed in a way that maintains data integrity and consistency
+
+Types of Locks:
+1. Shared Lock (S Lock): 
+- allows multiple transactions to read a resource but not modify it, ensuring that the data remains consistent while being read
+- also known as read lock
+2. Exclusive Lock (X Lock): 
+- allows a transaction to both read and modify a resource, preventing other transactions from accessing the resource until the lock is released
+- also known as write lock
+3. Binary Lock:
+- a simple locking mechanism that allows only one transaction to access a resource at a time, either for reading or writing, ensuring exclusive access to the resource
+4. Intention Lock:
+- a type of lock that indicates a transaction's intention to acquire a shared or exclusive lock on a resource, allowing the database to manage locks more efficiently and prevent deadlocks
+IS(Intention Shared Lock), IX(Intention Exclusive Lock), SIX(Shared + Intention Exclusive Lock)
+
+
++---------------+------------+-----------+
+| Existing Lock | Request S  | Request X |
++---------------+------------+-----------+
+|     S         |    ✅      |    ❌      |
+|     X         |    ❌      |    ❌      |
++---------------+------------+-----------+
+
++-----------------------------------------------------------+
+|                                                           |            
+|                          LOCKS                            |                
+|                            │                              |            
+|           ┌────────────────┼────────────────┐             |                            
+|           ↓                ↓                ↓             |                
+|       Lock Mode        Granularity       Protocol         |                        
+|           │                │                │             |                            
+|      ┌────┴────┐      ┌────┴────┐          ↓              |                
+|      ↓         ↓      ↓         ↓         2PL             |            
+|     S          X     Table      Row                       |            
+|   Shared   Exclusive                                      |
+|                                                           |
++-----------------------------------------------------------+
+
+
+
+-- row level lock
+BEGIN;
+
+SELECT *
+FROM accounts
+WHERE id = 1
+FOR UPDATE;
+
+-- row is locked for update
+UPDATE accounts
+SET balance = balance - 100
+WHERE id = 1;
+
+COMMIT;
+
+-- for share
+SELECT *
+FROM students
+WHERE id = 1
+FOR SHARE;
++----------------------------------------------------+
+|        FOR UPDATE                                  |
+|            ↓                                       |
+|        "I'm going to modify this row"              |                
+|                                                    |   
+|        FOR SHARE                                   |           
+|            ↓                                       |                      
+|        "I'm reading this row and want protection   |               
+|        against conflicting modifications"          | 
++----------------------------------------------------+
+
+- NOWAIT
+SELECT *
+FROM students
+WHERE id = 1
+FOR UPDATE NOWAIT;
+-- it gives an error if the row is already locked by another transaction, instead of waiting for the lock to be released.
+
+- SKIP LOCKED
+SELECT *
+FROM students
+WHERE id = 1
+FOR UPDATE SKIP LOCKED;
+-- it skips the locked rows and returns only the unlocked rows, allowing the transaction to continue without waiting for the lock to be released.
+
+
+-- table level lock
+BEGIN;
+
+LOCK TABLE students IN SHARE MODE;
+
+-- operations
+
+COMMIT;
+
+UNLOCK TABLE students;
+
+-- row level lock in MYSQL/MARIADB: (InnoDB engine)
++----------------------------------------+
+|    MySQL/MariaDB InnoDB                |           
+|            │                           |               
+|            ├── Shared (S)              |               
+|            ├── Exclusive (X)           |               
+|            ├── Intention locks         |                   
+|            ├── Record locks(row lock)  |                   
+|            ├── Gap locks               |               
+|            └── Next-key locks          |
++----------------------------------------+
+SELECT *
+FROM students
+WHERE id = 1
+FOR SHARE;
+--- gap lock
+SELECT *
+FROM students
+WHERE id BETWEEN 10 AND 20
+FOR UPDATE;
+--- next-key lock: Record lock + Gap lock
+
+-- table level lock in MYSQL/MARIADB: (InnoDB engine)
+LOCK TABLES students WRITE; (READ, WRITE)
+** operations **
+UNLOCK TABLES;
+
+-- row level locks in PostgreSQL: (MVCC mechanism)
+
+--- row level modes:
++---------------------+
+|  FOR UPDATE         |      
+|  FOR NO KEY UPDATE  |  
+|  FOR SHARE          |      
+|  FOR KEY SHARE      |
++---------------------+
+SELECT *
+FROM students
+WHERE id = 1
+FOR UPDATE;
+
+
+-- table level locks in PostgreSQL:
++--------------------------+
+|  ACCESS SHARE            |                 
+|  ROW SHARE               |                 
+|  ROW EXCLUSIVE           |                     
+|  SHARE UPDATE EXCLUSIVE  |                               
+|  SHARE                   |             
+|  SHARE ROW EXCLUSIVE     |                         
+|  EXCLUSIVE               |                 
+|  ACCESS EXCLUSIVE        |
++--------------------------+
+LOCK TABLE students IN ACCESS EXCLUSIVE MODE;
+
+-- advisory locks in PostgreSQL:
+- application-defined locks that can be used to coordinate access to shared resources, allowing developers to implement custom locking strategies and manage concurrency in their applications
+- they are not automatically enforced by the database,
+- they are managed by the application itself.
+
+SELECT pg_advisory_lock(123);
+SELECT pg_advisory_unlock(123);
+
+
++------------------------------------------------------+
+|  S lock          → read                              |      
+|  X lock          → write                             |          
+|                                                      |  
+|  FOR UPDATE      → lock rows for update              |          
+|  FOR SHARE       → shared row lock                   |      
+|                                                      |                 
+|  Blocking        → wait for conflicting lock         |          
+|  Deadlock        → T1 waits for T2, T2 waits for T1  |                    
+|                                                      |             
+|  NOWAIT          → don't wait                        |             
+|  SKIP LOCKED     → skip locked rows                  |             
+|                                                      |                 
+|  MySQL InnoDB    → gap + next-key locks              |             
+|  PostgreSQL      → MVCC + row/table/advisory locks   |      
++------------------------------------------------------+
+
+-- most features are similar in both MYSQL and PostgreSQL, but the implementation details and specific syntax may vary between the two database systems.

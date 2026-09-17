@@ -1,0 +1,28 @@
+Stored Procedure:
+- It is a set of SQL statements that can be executed as a single unit.
+- It is stored in the database and can be reused multiple times.
+
+SYNTAX:
+DELIMITER //
+CREATE PROCEDURE procedure_name (parameters)
+BEGIN
+    -- SQL statements go here
+END //
+DELIMITER ;
+
+CALL procedure_name (parameters);
+
+
+Function:
+- It is a set of SQL statements that can be executed as a single unit and returns a value.
+- It is stored in the database and can be reused multiple times.
+
+SYNTAX:
+DELIMITER //
+CREATE FUNCTION function_name (parameters)
+RETURNS return_data_type
+BEGIN
+    -- SQL statements go here
+    RETURN value;
+END //  
+DELIMITER ;

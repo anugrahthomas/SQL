@@ -1,0 +1,30 @@
+Trigger in SQL:
+- it is a set of instructions that are automatically executed in response to certain events on a particular table or view in a database.
+- Triggers can be used to enforce business rules, validate data, maintain audit trails, and perform other automated tasks in a database.
+
+NEW vs OLD:
+- NEW: refers to the new row that is being inserted or updated in the table. It contains the values of the columns for the new row.
+- OLD: refers to the old row that is being updated or deleted in the table. It contains the values of the columns for the old row
+eg:
+DELIMITER //
+
+CREATE TRIGGER after_student_delete
+AFTER DELETE ON students
+FOR EACH ROW
+BEGIN
+    INSERT INTO student_log(student_id, action)
+    VALUES (OLD.id, 'DELETE');
+END //
+
+DELIMITER ;
+
++-----------------+
+|  BEFORE INSERT  |
+|  AFTER INSERT   |
+|                 |  
+|  BEFORE UPDATE  |  
+|  AFTER UPDATE   |      
+|                 |      
+|  BEFORE DELETE  |      
+|  AFTER DELETE   |  
++-----------------+

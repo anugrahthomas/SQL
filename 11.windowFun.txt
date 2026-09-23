@@ -1,0 +1,38 @@
+Window Functions:
+- Window functions perform calculations across a set of table rows that are related to the current row. They are often used for ranking, running totals, moving averages, and other calculations that require access to multiple rows of data.
+- Unlike aggregate functions, window functions do not collapse the result set into a single row. Instead, they return a value for each row in the result set, while still allowing access to the individual rows.
+
+SYNTAX:
+SELECT column1, column2, window_function() OVER (PARTITION BY column3 ORDER BY column4) AS alias_name
+- The PARTITION BY clause divides the result set into partitions to which the window function is applied
+- The ORDER BY clause specifies the order of rows within each partition for the window function to operate
+
+1. ROW_NUMBER():
+- Assigns a unique sequential integer to rows within a partition of a result set, starting at 1 for the first row in each partition.
+- Example:
+SELECT column1, column2, ROW_NUMBER() OVER (PARTITION BY column3 ORDER BY column4) AS row_num
+FROM table_name;
+
+2. RANK():
+- Assigns a rank to each row within a partition of a result set, with gaps in the ranking for ties. Rows with equal values receive the same rank, and the next rank is incremented by the number of tied rows.
+- Example:
+SELECT column1, column2, RANK() OVER (PARTITION BY column3 ORDER BY column4) AS rank
+FROM table_name;
+
+3. DENSE_RANK():
+- Similar to RANK(), but without gaps in the ranking for ties. Rows with equal values receive the same rank, and the next rank is incremented by 1.
+- Example:
+SELECT column1, column2, DENSE_RANK() OVER (PARTITION BY column3 ORDER BY column4) AS dense_rank
+FROM table_name;
+
+4. LAG():
+- Provides access to a row at a specified physical offset that comes before the current row within the partition. It is useful for comparing values in the current row with previous rows.
+- Example:
+SELECT column1, column2, LAG(column2) OVER (PARTITION BY column3 ORDER BY column4) AS previous_value
+FROM table_name;
+
+5. LEAD():
+- Provides access to a row at a specified physical offset that comes after the current row within the partition. It is useful for comparing values in the current row with subsequent rows.
+- Example:
+SELECT column1, column2, LEAD(column2) OVER (PARTITION BY column3 ORDER BY column4) AS next_value
+FROM table_name;    

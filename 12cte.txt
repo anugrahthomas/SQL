@@ -1,0 +1,68 @@
+Common Table Expressions (CTEs) are a powerful feature in SQL that allow you to define temporary result sets that can be referenced within a SELECT, INSERT, UPDATE, or DELETE statement. CTEs can improve the readability and maintainability of your SQL queries by breaking down complex queries into simpler, more manageable parts.
+- it works similar to subqueries, but CTEs can be self-referential and can be referenced multiple times within the same query, making them more versatile.
+- A CTE is not necessarily physically created as a temporary table in memory.
+
+
+SYNTAX:
+WITH cte_name AS (
+    SELECT column1, column2, ...
+    FROM table_name
+    WHERE condition
+)
+SELECT column1, column2, ...
+FROM cte_name
+- The WITH clause defines the CTE, giving it a name (cte_name) and specifying the query that generates the temporary result set.
+- The CTE can then be referenced in the main query that follows the WITH clause, allowing you to use the results of the CTE as if it were a regular table or view.
+
+
+Recursive CTEs are a special type of CTE that allow you to perform recursive queries, which can be useful for working with hierarchical data or performing iterative calculations. A recursive CTE consists of two parts: the anchor member and the recursive member.
+SYNTAX:
+WITH RECURSIVE cte_name AS (
+    -- Anchor member: the initial query that defines the base case
+    SELECT column1, column2, ...
+    FROM table_name
+    WHERE condition
+    UNION ALL
+    -- Recursive member: the query that references the CTE itself
+    SELECT column1, column2, ...
+    FROM table_name
+    WHERE condition
+)
+
+
+example:
+
+WITH
+TopStudents AS (
+    SELECT *
+    FROM Students
+    WHERE marks > 80
+),
+
+DelhiStudents AS (
+    SELECT *
+    FROM TopStudents
+    WHERE city = 'Delhi'
+)
+
+SELECT *
+FROM DelhiStudents;
+
++-----------------------------------+
+|        Students                   |                
+|           │                       |            
+|           │ marks > 80            |                        
+|           ▼                       |                                    
+|        ┌────────────────┐         |                  
+|        │ TopStudents    │         |                
+|        └───────┬────────┘         |                            
+|                │                  |                    
+|                │ city = Delhi     |                    
+|                ▼                  |                    
+|        ┌────────────────┐         |                        
+|        │ DelhiStudents  │         |                            
+|        └───────┬────────┘         |                    
+|                │                  |                
+|                ▼                  |                
+|             SELECT *              |        
++-----------------------------------+

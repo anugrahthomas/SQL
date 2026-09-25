@@ -1,0 +1,67 @@
+Database Security:
+- Implement strong access controls to ensure that only authorized personnel can access sensitive data.
+- Use encryption for data at rest and in transit to protect against unauthorized access.
+- Regularly update and patch database systems to protect against known vulnerabilities.
+
+AAA: it is a framework for managing access to resources in a secure manner, consisting of three components:
+- Authentication: Verify the identity of users before granting access to the database.
+- Authorization: Define and enforce user permissions to control what actions users can perform on the database.
+- Accounting: Maintain logs of user activities to monitor and 'audit' database access and usage.
+
+┌─────────────────────────────────────────┐
+│ Authentication   → "Who are you?"       │
+│ Authorization    → "What can you do?"   │ 
+│ Accounting       → "What did you do?"   │ 
+└─────────────────────────────────────────┘
+
+CIA: it is the goal of security to ensure the CIA triad is maintained in systems.
+- Confidentiality: Ensure that sensitive data is protected from unauthorized access and disclosure.
+- Integrity: Maintain the accuracy and consistency of data by preventing unauthorized modifications.
+- Availability: Ensure that the database is accessible and operational when needed, preventing downtime and disruptions.
+┌───────────────────────────────────────────────────┐
+|                     SECURITY                      |
+|                        │                          |
+|          ┌─────────────┼─────────────┐            |
+|          ▼             ▼             ▼            |
+|   Confidentiality   Integrity    Availability     |
+|      "Keep it       "Keep it       "Keep it       |
+|       secret"        correct"       accessible"   |
+└───────────────────────────────────────────────────┘
+
+
+-- AAA is the security guard that ensures CIA as a goal is achieved
+-- AAA = User side 🔐 | CIA = Data side 🛡️
+
+
+Access Control:
+- Implement role-based access control (RBAC) to assign permissions based on user roles, minimizing the risk of unauthorized access.
+- Use multi-factor authentication (MFA) to add an extra layer of security for user logins.
+- Regularly review and update access permissions to ensure they align with current job responsibilities and security policies.
+
+CREATE USER 'username'@'host' IDENTIFIED BY 'password';
+host can be:
+- localhost: The user can only connect from the local machine.
+- %: The user can connect from any host.
+- Specific IP address: The user can only connect from a specific IP address.
+
+
+GRANT & REVOKE:
+SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, GRANT OPTION, ALL PRIVILEGES, etc.
+
+-----------------------------------------------------------------------------------------
+SET ROLE 'role_name';
+- to activate a specific role for the current session.
+-- without this command, the user will not have the privileges associated with that role.
+
+
+-----------------------------------------------------------------------------------------
+sql injection:
+- A common security vulnerability that allows attackers to manipulate SQL queries by injecting malicious input.
+- To prevent SQL injection, use parameterized queries or prepared statements, which separate SQL code from user input, ensuring that user input is treated as data rather than executable code.
+- Regularly validate and sanitize user input to prevent malicious data from being processed by the database.
+- Limit database permissions for application accounts to only what is necessary for their functionality, reducing the potential impact of a successful SQL injection attack.g
+
+eg:
+client.query(`SELECT * FROM users WHERE username = {$username}`) // this is vulnerable to SQL injection
+client.query(`SELECT * FROM users WHERE username = $1`, [username]) // this is safe from SQL injection
+
